@@ -6,6 +6,8 @@
 #include "base/statistics.hh"
 #include "interface.hh"
 
+#define MaxInt 2147483647
+
 namespace gem5
 {
 
@@ -38,6 +40,8 @@ class SimpleCache : public Interface
         bool isL1;
         bool isL2;
         bool isL3;
+
+        int useCounter = 1;
 
         const char *cacheName;
 

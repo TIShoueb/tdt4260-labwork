@@ -22,10 +22,10 @@ SimpleCache::SimpleCache(int size, int blockSize, int associativity,
     for (int i = 0; i < this->numSets; i++) {
         std::vector<Entry *> vec;
 
-        // TODO: Associative: Allocate as many entries as there are ways
-        // i.e. replace vector with vector of vector and build ways
         vec.push_back(new Entry());
 
+        // TODO: Associative: Allocate as many entries as there are ways
+        // i.e. replace vector of single entry with vector of way number of entries 
         entries.push_back(vec);
     }
 }
@@ -91,7 +91,6 @@ SimpleCache::calculateTag(Addr req)
 {
     // TODO: Direct-Mapped: Calculate tag
     // hint: req >> ((int)std::log2(...
-
     return req;
 }
 
