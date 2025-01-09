@@ -10,9 +10,9 @@ CC=gcc
 CFLAGS:=-Werror -O2 -g $(CFLAGS) -march=x86-64
 LDFLAGS:=-static
 
-all: test_associativety
+all: test_associativity
 
-test_associativety: test_associativety.o
+test_associativity: test_associativity.o
 
 clean:
-	rm -f test_associativety *.o
+	rm -f test_associativity *.o

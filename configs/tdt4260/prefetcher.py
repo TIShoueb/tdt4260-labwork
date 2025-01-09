@@ -112,7 +112,7 @@ system.cpu[0].workload = process
 system.cpu[0].createThreads()
 
 
-#print(os.listdir())
+print(os.listdir())
 src = f"spec2017_cpts/{benchmark.name}-cpt"
 dst = f"prefetcher_out_{iteration}/cpt.1"
 shutil.copytree(src, dst)

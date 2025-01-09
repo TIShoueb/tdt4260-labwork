@@ -42,10 +42,10 @@ main(int argc, char *argv[])
     assert(IS_POW2(cache_size_bytes));
     assert(cache_size_bytes>=BYTES_PER_LINE);
     u_int64_t cache_num_lines = cache_size_bytes/BYTES_PER_LINE;
-    u_int64_t cache_associativety = atol(argv[2]);
-    assert(IS_POW2(cache_associativety));
-    assert(cache_num_lines>=cache_associativety);
-    u_int64_t cache_num_sets = cache_num_lines/cache_associativety;
+    u_int64_t cache_associativity = atol(argv[2]);
+    assert(IS_POW2(cache_associativity));
+    assert(cache_num_lines>=cache_associativity);
+    u_int64_t cache_num_sets = cache_num_lines/cache_associativity;
 
     // create two arrays that are as big as and aligned to the cache size, i.e. alias
     cache_line * data_array = get_alligned_array(cache_size_bytes);
@@ -98,17 +98,17 @@ main(int argc, char *argv[])
         sum1 += flush_array[i].data;
     }
     GEM5_DUMPSTATS;
-    if (cache_associativety!=1){
+    if (cache_associativity!=1){
         // access all ways of the first set
-        for (u_int64_t i = 0; i < cache_associativety; ++i) {
+        for (u_int64_t i = 0; i < cache_associativity; ++i) {
             sum1 += data_array[i*cache_num_sets].data;
         }
         COMPILER_MEM_BARRIER;
         // access aliasing element from flush array
         sum1 += flush_array[0].data;
         GEM5_RESETSTATS;
-        // access all but the first way - they should still be in the cache - we expect cache_associativety-1 hits
-        for (u_int64_t i = 1; i < cache_associativety; ++i) {
+        // access all but the first way - they should still be in the cache - we expect cache_associativity-1 hits
+        for (u_int64_t i = 1; i < cache_associativity; ++i) {
             sum1 += data_array[i*cache_num_sets].data;
         }
         GEM5_DUMPSTATS;
@@ -117,7 +117,7 @@ main(int argc, char *argv[])
         sum1 += data_array[0].data;
         GEM5_DUMPSTATS;
         // access all ways of the first set
-        for (u_int64_t i = 0; i < cache_associativety; ++i) {
+        for (u_int64_t i = 0; i < cache_associativity; ++i) {
             sum1 += data_array[i*cache_num_sets].data;
         }
         GEM5_RESETSTATS;

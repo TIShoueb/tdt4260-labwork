@@ -8,7 +8,7 @@ def run_workload(exectuable, arguments=None, l1CacheSize=16384,
         arguments = ""
     elif not isinstance(arguments, str):
         arguments = " ".join(str(a) for a in arguments)
-    subprocess.run(["./build/X86/gem5.opt", "configs/tdt4260/cache_lab.py",
+    subprocess.run(["./build/X86/gem5.opt", "-q", "configs/tdt4260/cache_lab.py",
                     "--l1CacheSize", str(l1CacheSize),
                     "--l1CacheAssociativity", str(l1CacheAssociativity),
                     "--cmd", exectuable,
@@ -103,14 +103,36 @@ def check_test_associativety_stats(cache_size_bytes, cache_associativety,
 
 
 def test_associativety():
-    for associativety in [
-        1,
-        2, 4, 8, 16]:
+    for associativity in [
+# Comment out this line to test all associativities 
+#        1]:
+# Comment in this line to test all associativities
+       1, 2, 4, 8, 16]:
         for cache_size in [1024, 2048, 4096, 8192, 16384, 32768, 65536]:
+            print("---------------- NEW TEST ----------------")
+            print(f"Testing for size {cache_size} and associativity {associativity}")
+
+
             run_workload("src/tdt4260/cache_lab/programs/test_associativety/test_associativety",
-                [cache_size, associativety], cache_size, associativety)
+                [cache_size, associativity], cache_size, associativity)
             stats = parse_stats()
-            check_test_associativety_stats(cache_size, associativety, stats)
+            check_test_associativety_stats(cache_size, associativity, stats)
+
+
+
+
+    print('''
+                                 _       
+                                | |      
+  ___ ___  _ __   __ _ _ __ __ _| |_ ___ 
+ / __/ _ \| '_ \ / _` | '__/ _` | __/ __|
+| (_| (_) | | | | (_| | | | (_| | |_\__ \\
+ \___\___/|_| |_|\__, |_|  \__,_|\__|___/
+                  __/ |                  
+                 |___/   
+                 '''
+    )
+    print("Your run has passed the test. If your run passed direct mapped, move on to 4.2. If it passed associativity, move on to 4.3.")
 
 
 if __name__ == '__main__':
