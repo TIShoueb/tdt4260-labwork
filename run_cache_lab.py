@@ -32,7 +32,7 @@ def parse_stats():
             assert False
     return stats
 
-def check_test_associativety_stats(cache_size_bytes, cache_associativety,
+def check_test_associativity_stats(cache_size_bytes, cache_associativity,
                                    stats):
     BYTES_PER_LINE = 64
     cache_num_lines = cache_size_bytes//BYTES_PER_LINE
@@ -75,11 +75,11 @@ def check_test_associativety_stats(cache_size_bytes, cache_associativety,
     assert stores(stats[5]) == 0
     assert misses(stats[5]) == cache_num_lines
 
-    if cache_associativety != 1:
-        # we expect cache_associativety-1 hits
-        assert loads(stats[6]) == cache_associativety-1
+    if cache_associativity != 1:
+        # we expect cache_associativity-1 hits
+        assert loads(stats[6]) == cache_associativity-1
         assert stores(stats[6]) == 0
-        assert hits(stats[6]) == cache_associativety-1
+        assert hits(stats[6]) == cache_associativity-1
 
         # we expect 1 miss
         assert loads(stats[7]) == 1
@@ -102,7 +102,7 @@ def check_test_associativety_stats(cache_size_bytes, cache_associativety,
         assert misses(stats[10]) == 1
 
 
-def test_associativety():
+def test_associativity():
     for associativity in [
 # Comment out this line to test all associativities 
 #        1]:
@@ -113,10 +113,10 @@ def test_associativety():
             print(f"Testing for size {cache_size} and associativity {associativity}")
 
 
-            run_workload("src/tdt4260/cache_lab/programs/test_associativety/test_associativety",
+            run_workload("src/tdt4260/cache_lab/programs/test_associativity/test_associativity",
                 [cache_size, associativity], cache_size, associativity)
             stats = parse_stats()
-            check_test_associativety_stats(cache_size, associativity, stats)
+            check_test_associativity_stats(cache_size, associativity, stats)
 
 
 
@@ -136,4 +136,4 @@ def test_associativety():
 
 
 if __name__ == '__main__':
-    test_associativety()
+    test_associativity()
