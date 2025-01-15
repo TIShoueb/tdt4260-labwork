@@ -1,3 +1,4 @@
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,8 +9,8 @@
 #define BYTES_PER_LINE 64
 
 // arcane black magic to get gem5 to reset and dump stats. also acts like memory barrier for the compiler
-#define GEM5_DUMPSTATS  __asm__ __volatile__ (".word 0x040F; .word 0x0041;" : : "D" (0), "S" (0) :"memory")
-#define GEM5_RESETSTATS __asm__ __volatile__ (".word 0x040F; .word 0x0040;" : : "D" (0), "S" (0) :"memory")
+#define GEM5_DUMPSTATS  __asm__ __volatile__ (".word 0x040F; .word 0x0041;" : : "D" (0), "S" (0) : "rax", "memory")
+#define GEM5_RESETSTATS __asm__ __volatile__ (".word 0x040F; .word 0x0040;" : : "D" (0), "S" (0) : "rax", "memory")
 #define COMPILER_MEM_BARRIER __asm__ __volatile__ ("" : : "D" (0), "S" (0) :"memory")
 /* For ghidra disassembly to work add the following to Ghidra/Processors/x86/data/languages/ia.sinc :
 define pcodeop Gem5DumpStats;
@@ -139,3 +140,4 @@ main(int argc, char *argv[])
     assert(sum1>0);
     return 0;
 }
+                                 
