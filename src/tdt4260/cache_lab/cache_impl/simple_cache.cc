@@ -7,9 +7,16 @@
 #include "debug/AllCacheLines.hh"
 #include "debug/TDTSimpleCache.hh"
 
+
 namespace gem5
 {
+struct Entry {
+    int tag;    // Tag for the cache line
+    bool valid; // Indicates if the cache line is valid
 
+    // Constructor to initialize members
+    Entry() : tag(0), valid(false) {}
+};
 SimpleCache::SimpleCache(int size, int blockSize, int associativity,
                          statistics::Group *parent, const char *name)
     : size(size), blockSize(blockSize), associativity(associativity), cacheName(name),
@@ -23,9 +30,8 @@ SimpleCache::SimpleCache(int size, int blockSize, int associativity,
         std::vector<Entry *> vec;
 
         // TODO: Associative: Allocate as many entries as there are ways
-        // i.e. replace vector of single entry with vector of way number of entries 
+        // i.e. replace vector of single entry with vector of way number of entries
         vec.push_back(new Entry());
-
         entries.push_back(vec);
     }
 }
@@ -77,10 +83,15 @@ SimpleCache::recvResp(Addr resp)
 
     // there should never be a request (and thus a response) for a line already in the cache
     assert(!hasLine(index, tag));
+    //insure that the line is not already in the cache
 
-    int way = oldestWay(index);
-    DPRINTF(TDTSimpleCache, "Miss: Replaced way: %d\n", way);
+    //replace the cache line at the give given index
     // TODO: Direct-Mapped: Record new cache line in entries
+    entries[index][0]->tag = tag;
+
+    DPRINTF(TDTSimpleCache, "Miss: Replaced line at index %d with tag %d\n", index, tag);
+
+
 
     // TODO: Associative: Record LRU info for new line in entries
     sendResp(resp);
@@ -91,22 +102,23 @@ SimpleCache::calculateTag(Addr req)
 {
     // TODO: Direct-Mapped: Calculate tag
     // hint: req >> ((int)std::log2(...
-    return req;
+    return req >> ((int)std::log2(blockSize) + (int)std::log2(numSets));
 }
 
 int
 SimpleCache::calculateIndex(Addr req)
 {
     // TODO: Direct-Mapped: Calculate index
-    return 0;
+    return (req >> (int)std::log2(blockSize)) & (numSets - 1);
 }
 
 bool
 SimpleCache::hasLine(int index, int tag)
 {
     // TODO: Direct-Mapped: Check if line is already in cache
+    return entries[index][0]->tag == tag;
     // TODO: Associative: Check all possible ways
-    return false;
+
 }
 
 int
@@ -136,3 +148,9 @@ SimpleCache::sendResp(Addr resp)
 }
 
 }
+
+
+
+
+
+
