@@ -7,16 +7,9 @@
 #include "debug/AllCacheLines.hh"
 #include "debug/TDTSimpleCache.hh"
 
-
 namespace gem5
 {
-struct Entry {
-    int tag;    // Tag for the cache line
-    bool valid; // Indicates if the cache line is valid
 
-    // Constructor to initialize members
-    Entry() : tag(0), valid(false) {}
-};
 SimpleCache::SimpleCache(int size, int blockSize, int associativity,
                          statistics::Group *parent, const char *name)
     : size(size), blockSize(blockSize), associativity(associativity), cacheName(name),
@@ -30,8 +23,10 @@ SimpleCache::SimpleCache(int size, int blockSize, int associativity,
         std::vector<Entry *> vec;
 
         // TODO: Associative: Allocate as many entries as there are ways
-        // i.e. replace vector of single entry with vector of way number of entries
-        vec.push_back(new Entry());
+        for (int j = 0; j < this->associativity; j++) {
+            vec.push_back(new Entry());
+        }
+
         entries.push_back(vec);
     }
 }
@@ -66,6 +61,8 @@ SimpleCache::recvReq(Addr req, int size)
         DPRINTF(TDTSimpleCache, "Hit: way: %d\n", way);
 
         // TODO: Associative: Update LRU info for line in entries
+        entries[index][way]->lastUsed = useCounter++;
+
 
         sendResp(req);
     } else{
@@ -83,17 +80,16 @@ SimpleCache::recvResp(Addr resp)
 
     // there should never be a request (and thus a response) for a line already in the cache
     assert(!hasLine(index, tag));
-    //insure that the line is not already in the cache
 
-    //replace the cache line at the give given index
+    int way = oldestWay(index);
+    DPRINTF(TDTSimpleCache, "Miss: Replaced way: %d\n", way);
     // TODO: Direct-Mapped: Record new cache line in entries
-    entries[index][0]->tag = tag;
-
-    DPRINTF(TDTSimpleCache, "Miss: Replaced line at index %d with tag %d\n", index, tag);
-
-
+    entries[index][way]->valid = true;
+    entries[index][way]->tag = tag;
 
     // TODO: Associative: Record LRU info for new line in entries
+    entries[index][way]->lastUsed = useCounter++;
+
     sendResp(resp);
 }
 
@@ -102,38 +98,54 @@ SimpleCache::calculateTag(Addr req)
 {
     // TODO: Direct-Mapped: Calculate tag
     // hint: req >> ((int)std::log2(...
-    return req >> ((int)std::log2(blockSize) + (int)std::log2(numSets));
+    return req >> ((int)std::log2(blockSize * numSets));
 }
 
 int
 SimpleCache::calculateIndex(Addr req)
 {
     // TODO: Direct-Mapped: Calculate index
-    return (req >> (int)std::log2(blockSize)) & (numSets - 1);
+    return  (req >> ((int)std::log2(blockSize))) & (numSets - 1);
 }
 
 bool
 SimpleCache::hasLine(int index, int tag)
 {
     // TODO: Direct-Mapped: Check if line is already in cache
-    return entries[index][0]->tag == tag;
     // TODO: Associative: Check all possible ways
-
+    for (int way = 0; way < associativity; way++) {
+        if (entries[index][way]->valid && entries[index][way]->tag == tag) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int
 SimpleCache::lineWay(int index, int tag)
 {
     // TODO: Associative: Find in which way a cache line is stored
-    return 0;
+    for (int way = 0; way < associativity; way++) {
+        if (entries[index][way]->valid && entries[index][way]->tag == tag) {
+            return way;
+        }
+    }
+    return -1; // Not found
 }
 
 int
 SimpleCache::oldestWay(int index)
 {
     // TODO: Associative: Determine the oldest way
-    return 0;
+    int oldest = 0;
+    for (int way = 1; way < associativity; ++way) {
+        if (entries[index][way]->lastUsed < entries[index][oldest]->lastUsed) {
+            oldest = way;
+        }
+    }
+    return oldest;
 }
+
 
 void
 SimpleCache::sendReq(Addr req, int size)
@@ -148,9 +160,4 @@ SimpleCache::sendResp(Addr resp)
 }
 
 }
-
-
-
-
-
 

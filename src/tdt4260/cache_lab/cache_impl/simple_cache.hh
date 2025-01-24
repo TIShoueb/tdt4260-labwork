@@ -23,11 +23,13 @@ class SimpleCache : public Interface
             Entry() {
                 tag = MaxAddr;
                 lastUsed = 0;
+                valid = false;  
             };
 
             Addr tag;
             int lastUsed;
-        };
+            bool valid;       
+ };
 
         int size = 0;
         int blockSize = 0;
