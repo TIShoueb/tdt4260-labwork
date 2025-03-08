@@ -1,7 +1,6 @@
 /**
  * A code skeleton for the matrix multiply bonus assignment.
  *
- * *
  * Course: Advanced Computer Architecture, Uppsala University
  * Course Part: Lab assignment 1
  *
@@ -37,6 +36,22 @@ static double mat_ref[SIZE][SIZE];
  * Matrix multiplication. This is the procedure you should try to
  * optimize.
  */
+
+/* I have change it. Function to transpose mat_b */
+static void transpose(double mat_b[SIZE][SIZE], double mat_b_transposed[SIZE][SIZE]) {
+    int i, j;
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            mat_b_transposed[j][i] = mat_b[i][j];  // Swap rows and columns
+        }
+    }
+}
+
+/**
+ * Optimized matrix multiplication using transposed mat_b.
+ */
+
+
 static void
 matmul_opt()
 {
@@ -44,27 +59,20 @@ matmul_opt()
          * here. It should calculate mat_c := mat_a * mat_b. See
          * matmul_ref() for a reference solution.
          */
-    int i, j, k, jj, kk;    
-    int B = 32;  // Blocking factor, adjust this based on cache size
+        int i, j, k;
+        double mat_b_transposed[SIZE][SIZE];  // Declare the transposed matrix
+        //I have changed here  Transpose mat_b before performing multiplication
+        transpose(mat_b, mat_b_transposed);
 
-    // Iterate over blocks of size B
-    for (jj = 0; jj < SIZE; jj += B) {
-        for (kk = 0; kk < SIZE; kk += B) {
-            // Iterate over rows of the first matrix
-            for (i = 0; i < SIZE; i++) {
-                // Iterate over columns of the second matrix, within the current >
-                for (j = jj; j < ((jj + B) < SIZE ? jj + B : SIZE); j++) {
-                    double r = 0;
-                    // Iterate over the elements in the current block
-                    for (k = kk; k < ((kk + B) < SIZE ? kk + B : SIZE); k++) {
-                        r += mat_a[i][k] * mat_b[k][j];
-                    }
-                    mat_c[i][j] += r;
+        for (k = 0; k < SIZE; k++) {
+            for (j = 0; j < SIZE; j++) {
+                for (i = 0; i < SIZE; i++) {
+                    mat_c[i][j] += mat_a[i][k] * mat_b_transposed[j][k];
                 }
             }
         }
-    }
 }
+
 /**
  * Reference implementation of the matrix multiply algorithm. Used to
  * verify the answer from matmul_opt. Do NOT change this function.
@@ -240,13 +248,3 @@ main(int argc, char *argv[])
  * compile-command: "make -k"
  * End:
  */
-
-
-
-
-
-
-
-
-
-

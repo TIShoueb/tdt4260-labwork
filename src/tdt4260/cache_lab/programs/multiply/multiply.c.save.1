@@ -46,16 +46,11 @@ matmul_opt()
          */
     int i, j, k, jj, kk;    
     int B = 32;  // Blocking factor, adjust this based on cache size
-
-    // Iterate over blocks of size B
     for (jj = 0; jj < SIZE; jj += B) {
         for (kk = 0; kk < SIZE; kk += B) {
-            // Iterate over rows of the first matrix
             for (i = 0; i < SIZE; i++) {
-                // Iterate over columns of the second matrix, within the current >
                 for (j = jj; j < ((jj + B) < SIZE ? jj + B : SIZE); j++) {
                     double r = 0;
-                    // Iterate over the elements in the current block
                     for (k = kk; k < ((kk + B) < SIZE ? kk + B : SIZE); k++) {
                         r += mat_a[i][k] * mat_b[k][j];
                     }
