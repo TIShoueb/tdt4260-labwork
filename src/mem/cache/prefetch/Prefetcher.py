@@ -238,4 +238,15 @@ class TDTPrefetcher(QueuedPrefetcher):
 
     table_replacement_policy = Param.BaseReplacementPolicy(RandomRP(),
         "Replacement policy of the PC table")
+    
+
+from m5.objects import BasePrefetcher
+
+class BestOffsetPrefetcher(BasePrefetcher):
+    type = 'BestOffsetPrefetcher'
+    cxx_class = 'BestOffsetPrefetcher'
+    cxx_header = 'mem/cache/prefetch/best_offset.hh'
+
+    # Add any parameters for the Best-Offset Prefetcher here
+    
 
